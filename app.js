@@ -572,7 +572,7 @@
             el('div', { className: 'info-banner-content' }, [
                 el('h3', { textContent: 'Öğrenci Bilgileri' }),
                 el('p', {
-                    textContent: 'Öğrenci numaralarını ve ad-soyad bilgilerini giriniz. ' +
+                    textContent: 'Öğrenci numaralarını, ad-soyad bilgilerini ve hedef notlarını bu sayfadan giriniz. ' +
                         'Girdiğiniz bilgiler tüm ölçek sayfalarında otomatik olarak görüntülenecektir. Maksimum 40 öğrenci eklenebilir.'
                 })
             ])
@@ -677,6 +677,7 @@
             el('th', { textContent: '#', style: { width: '50px' } }),
             el('th', { textContent: 'Öğrenci No.' }),
             el('th', { textContent: 'Öğrencinin Adı Soyadı' }),
+            el('th', { textContent: 'Not Girişi', className: 'th-target-entry' }),
             el('th', { textContent: '', style: { width: '48px' } })
         ]);
         thead.appendChild(headerRow);
@@ -860,6 +861,7 @@
     }
 
     function createStudentRow(student, index) {
+        const targetCell = createTargetScoreCell(index, true);
         const tr = el('tr', {}, [
             el('td', {}, [el('span', { className: 'row-num', textContent: String(index + 1) })]),
             el('td', {}, [
@@ -888,6 +890,7 @@
                     }
                 })
             ]),
+            targetCell,
             el('td', {}, [
                 el('button', {
                     className: 'btn-remove-student',
@@ -902,6 +905,88 @@
             ])
         ]);
         return tr;
+    }
+
+    function createTargetScoreCell(studentIndex, compact) {
+        const targetTd = el('td', {
+            className: compact ? 'td-target td-target-entry' : 'td-target',
+            style: compact ? { minWidth: '190px' } : { minWidth: '140px' }
+        });
+        const targetWrapper = el('div', {
+            className: compact ? 'target-input-wrapper target-input-wrapper-compact' : 'target-input-wrapper'
+        });
+        const targetInput = el('input', {
+            className: compact ? 'target-input target-input-compact' : 'target-input',
+            type: 'number',
+            min: '0',
+            max: '100',
+            step: '1',
+            placeholder: '0-100',
+            id: compact ? `student-target-score-${studentIndex}` : `target-score-${studentIndex}`,
+            value: appData.students[studentIndex].targetScore || ''
+        });
+
+        let _distributing = false;
+        const autoDistribute = () => {
+            if (_distributing) return;
+            _distributing = true;
+            const val = parseFloat(targetInput.value);
+            appData.students[studentIndex].targetScore = targetInput.value;
+            saveData();
+            if (!isNaN(val) && val >= 0 && val <= 100) {
+                distributeTargetScore(studentIndex, val);
+                updatePerformanceInPlace();
+            }
+            setTimeout(() => { _distributing = false; }, 100);
+        };
+
+        targetInput.addEventListener('input', (e) => {
+            appData.students[studentIndex].targetScore = e.target.value;
+            saveData();
+        });
+
+        targetInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                targetInput.blur();
+                autoDistribute();
+            }
+        });
+
+        targetInput.addEventListener('change', () => {
+            autoDistribute();
+        });
+
+        const distributeBtn = el('button', {
+            className: compact ? 'btn-distribute btn-distribute-compact' : 'btn-distribute',
+            title: 'Puanı yeniden dağıt',
+            textContent: compact ? 'Uygula' : '🎲',
+            onClick: () => {
+                const val = parseFloat(targetInput.value);
+                if (isNaN(val) || val < 0 || val > 100) {
+                    showToast('Lütfen 0-100 arasında bir hedef puan giriniz.', 'error');
+                    return;
+                }
+                distributeTargetScore(studentIndex, val);
+                showToast(`${appData.students[studentIndex].name || 'Öğrenci'} için puanlar yeniden dağıtıldı! (Hedef: ${val})`, 'success');
+                updatePerformanceInPlace();
+            }
+        });
+
+        targetWrapper.appendChild(targetInput);
+        targetWrapper.appendChild(distributeBtn);
+
+        if (compact) {
+            const performanceScore = getFinalPerformance(studentIndex);
+            targetTd.appendChild(el('div', {
+                className: 'target-score-summary',
+                textContent: `Anlık puan: ${Math.round(performanceScore)}`
+            }));
+        }
+
+        targetTd.appendChild(targetWrapper);
+        return targetTd;
     }
 
     function addStudent() {
@@ -1355,74 +1440,7 @@
             }));
             tr.appendChild(finalTd);
 
-            // Target score input + distribute button
-            const targetTd = el('td', { className: 'td-target', style: { minWidth: '140px' } });
-            const targetWrapper = el('div', { className: 'target-input-wrapper' });
-            const targetInput = el('input', {
-                className: 'target-input',
-                type: 'number',
-                min: '0',
-                max: '100',
-                step: '1',
-                placeholder: '0-100',
-                id: `target-score-${i}`,
-                value: appData.students[i].targetScore || ''
-            });
-
-            // Auto-distribute function
-            let _distributing = false;
-            const autoDistribute = () => {
-                if (_distributing) return;
-                _distributing = true;
-                const val = parseFloat(targetInput.value);
-                appData.students[i].targetScore = targetInput.value;
-                saveData();
-                if (!isNaN(val) && val >= 0 && val <= 100) {
-                    distributeTargetScore(i, val);
-                    updatePerformanceInPlace();
-                }
-                setTimeout(() => { _distributing = false; }, 100);
-            };
-
-            targetInput.addEventListener('input', (e) => {
-                appData.students[i].targetScore = e.target.value;
-                saveData();
-            });
-
-            // Auto-distribute on Enter key
-            targetInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    targetInput.blur();
-                    autoDistribute();
-                }
-            });
-
-            // Auto-distribute on blur (leaving the field)
-            targetInput.addEventListener('change', () => {
-                autoDistribute();
-            });
-
-            const distributeBtn = el('button', {
-                className: 'btn-distribute',
-                title: 'Puanı yeniden dağıt',
-                textContent: '🎲',
-                onClick: () => {
-                    const val = parseFloat(targetInput.value);
-                    if (isNaN(val) || val < 0 || val > 100) {
-                        showToast('Lütfen 0-100 arasında bir hedef puan giriniz.', 'error');
-                        return;
-                    }
-                    distributeTargetScore(i, val);
-                    showToast(`${appData.students[i].name || 'Öğrenci'} için puanlar yeniden dağıtıldı! (Hedef: ${val})`, 'success');
-                    updatePerformanceInPlace();
-                }
-            });
-            targetWrapper.appendChild(targetInput);
-            targetWrapper.appendChild(distributeBtn);
-            targetTd.appendChild(targetWrapper);
-            tr.appendChild(targetTd);
+            tr.appendChild(createTargetScoreCell(i, false));
 
             tbody.appendChild(tr);
         });
