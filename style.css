@@ -587,14 +587,78 @@ body {
 }
 
 /* ============================
-   STUDENT CARDS
+   STUDENT LIST
    ============================ */
 .card-body-students {
     padding: 20px;
 }
 
+.student-table-wrapper {
+    display: block;
+    margin-bottom: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--bg-card);
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.student-table thead th {
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.student-table thead th:nth-child(1) {
+    width: 48px;
+    text-align: center;
+}
+
+.student-table thead th:nth-child(2) {
+    width: 120px;
+}
+
+.student-table thead th:nth-child(4) {
+    width: 250px;
+}
+
+.student-table thead th:nth-child(5) {
+    width: 52px;
+    text-align: center;
+}
+
+.student-table tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.student-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.student-table tbody tr:hover {
+    background: rgba(15, 118, 110, 0.04);
+}
+
+.student-table .th-student-name {
+    width: auto;
+}
+
 .student-card-grid {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 12px;
 }
@@ -666,6 +730,11 @@ body {
     border-radius: 12px;
 }
 
+.student-target-panel-compact {
+    padding: 8px 10px;
+    border-radius: 10px;
+}
+
 /* Row number */
 .row-num {
     display: inline-flex;
@@ -693,6 +762,13 @@ body {
     font-size: 0.85rem;
     transition: var(--transition-fast);
     outline: none;
+}
+
+.table-input-compact {
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
 }
 
 .table-input:focus {
@@ -1437,7 +1513,12 @@ body {
         padding: 16px;
     }
 
+    .student-table-wrapper {
+        display: none;
+    }
+
     .student-card-grid {
+        display: grid;
         grid-template-columns: 1fr;
         gap: 12px;
     }
@@ -1661,6 +1742,10 @@ body {
     justify-content: flex-start;
 }
 
+.target-input-wrapper-table {
+    gap: 6px;
+}
+
 .target-input {
     width: 84px;
     min-height: 38px;
@@ -1681,6 +1766,13 @@ body {
 
 .target-input-compact {
     width: 92px;
+}
+
+.target-input-table {
+    width: 74px;
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
 }
 
 .target-input::-webkit-outer-spin-button,
@@ -1724,6 +1816,13 @@ body {
     border-radius: 10px;
     font-size: 0.78rem;
     font-weight: 700;
+}
+
+.btn-distribute-table {
+    min-width: 64px;
+    height: 34px;
+    padding: 0 10px;
+    font-size: 0.74rem;
 }
 
 .btn-distribute:hover {

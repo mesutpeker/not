@@ -616,7 +616,7 @@
             el('input', {
                 className: 'quick-entry-input',
                 type: 'text',
-                placeholder: 'Örn. Öğrenci',
+                placeholder: 'Örn. Mehdi İşleten',
                 id: 'quickAddName',
                 value: quickAddDraft.name,
                 onInput: (e) => {
@@ -661,7 +661,7 @@
         quickEntry.appendChild(quickEntryActions);
         area.appendChild(quickEntry);
 
-        // Student cards
+        // Student list
         const card = el('div', { className: 'card' });
         const header = el('div', { className: 'card-header' }, [
             el('h2', { textContent: 'Öğrenci Listesi' })
@@ -669,6 +669,26 @@
         card.appendChild(header);
 
         const body = el('div', { className: 'card-body card-body-students' });
+        const tableWrapper = el('div', { className: 'student-table-wrapper' });
+        const table = el('table', { className: 'student-table', id: 'studentTable' });
+        const thead = el('thead');
+        thead.appendChild(el('tr', {}, [
+            el('th', { textContent: '#' }),
+            el('th', { textContent: 'Öğrenci No' }),
+            el('th', { textContent: 'Ad Soyad', className: 'th-student-name' }),
+            el('th', { textContent: 'Not Girişi', className: 'th-target-entry' }),
+            el('th', { textContent: '' })
+        ]));
+        table.appendChild(thead);
+
+        const tbody = el('tbody');
+        appData.students.forEach((s, i) => {
+            tbody.appendChild(createStudentRow(s, i));
+        });
+        table.appendChild(tbody);
+        tableWrapper.appendChild(table);
+        body.appendChild(tableWrapper);
+
         const studentGrid = el('div', { className: 'student-card-grid', id: 'studentCardGrid' });
         appData.students.forEach((s, i) => {
             studentGrid.appendChild(createStudentCard(s, i));
@@ -753,7 +773,7 @@
         const textarea = el('textarea', {
             className: 'bulk-textarea',
             id: 'bulkTextarea',
-            placeholder: '123\tALİ YILMAZ\n345\tAYŞE YILMAZ\n...\n\nOkul sisteminden kopyaladığınız listeyi buraya yapıştırın.\nNumara ve ad soyad otomatik olarak ayrıştırılacaktır.',
+            placeholder: '322\tMEHDİ İŞLETEN\n346\tBİLAL KILINÇ\n...\n\nOkul sisteminden kopyaladığınız listeyi buraya yapıştırın.\nNumara ve ad soyad otomatik olarak ayrıştırılacaktır.',
             rows: '12'
         });
         modalBody.appendChild(textarea);
@@ -897,18 +917,66 @@
         return card;
     }
 
-    function createTargetScorePanel(studentIndex) {
-        const targetTd = el('div', { className: 'student-target-panel td-target td-target-entry' });
+    function createStudentRow(student, index) {
+        const tr = el('tr', {}, [
+            el('td', {}, [el('span', { className: 'row-num', textContent: String(index + 1) })]),
+            el('td', {}, [
+                el('input', {
+                    className: 'table-input table-input-compact',
+                    type: 'text',
+                    placeholder: 'No',
+                    value: student.no || '',
+                    id: `student-no-${index}`,
+                    onInput: (e) => {
+                        appData.students[index].no = e.target.value;
+                        saveData();
+                    }
+                })
+            ]),
+            el('td', {}, [
+                el('input', {
+                    className: 'table-input table-input-compact',
+                    type: 'text',
+                    placeholder: 'Ad Soyad',
+                    value: student.name || '',
+                    id: `student-name-${index}`,
+                    onInput: (e) => {
+                        appData.students[index].name = e.target.value;
+                        saveData();
+                    }
+                })
+            ]),
+            el('td', {}, [createTargetScorePanel(index, true)]),
+            el('td', {}, [
+                el('button', {
+                    className: 'btn-remove-student btn-remove-student-card',
+                    textContent: '✕',
+                    title: 'Öğrenciyi sil',
+                    onClick: () => {
+                        if (confirm(`${student.name || 'Bu öğrenci'}yi silmek istediğinize emin misiniz?`)) {
+                            removeStudent(index);
+                        }
+                    }
+                })
+            ])
+        ]);
+        return tr;
+    }
+
+    function createTargetScorePanel(studentIndex, compact = false) {
+        const targetTd = el('div', {
+            className: compact ? 'student-target-panel student-target-panel-compact td-target td-target-entry' : 'student-target-panel td-target td-target-entry'
+        });
         targetTd.appendChild(el('div', {
             className: 'student-entry-label',
             textContent: 'Hedef Not Girişi'
         }));
 
         const targetWrapper = el('div', {
-            className: 'target-input-wrapper target-input-wrapper-compact'
+            className: `target-input-wrapper target-input-wrapper-compact${compact ? ' target-input-wrapper-table' : ''}`
         });
         const targetInput = el('input', {
-            className: 'target-input target-input-compact',
+            className: `target-input target-input-compact${compact ? ' target-input-table' : ''}`,
             type: 'number',
             min: '0',
             max: '100',
@@ -951,7 +1019,7 @@
         });
 
         const distributeBtn = el('button', {
-            className: 'btn-distribute btn-distribute-compact',
+            className: `btn-distribute btn-distribute-compact${compact ? ' btn-distribute-table' : ''}`,
             title: 'Puanı yeniden dağıt',
             textContent: 'Uygula',
             onClick: () => {
