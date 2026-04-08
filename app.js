@@ -661,35 +661,19 @@
         quickEntry.appendChild(quickEntryActions);
         area.appendChild(quickEntry);
 
-        // Table card
+        // Student cards
         const card = el('div', { className: 'card' });
         const header = el('div', { className: 'card-header' }, [
             el('h2', { textContent: 'Öğrenci Listesi' })
         ]);
         card.appendChild(header);
 
-        const body = el('div', { className: 'card-body' });
-        const table = el('table', { className: 'data-table', id: 'studentTable' });
-
-        // thead
-        const thead = el('thead');
-        const headerRow = el('tr', {}, [
-            el('th', { textContent: '#', style: { width: '50px' } }),
-            el('th', { textContent: 'Öğrenci No.' }),
-            el('th', { textContent: 'Öğrencinin Adı Soyadı' }),
-            el('th', { textContent: 'Not Girişi', className: 'th-target-entry' }),
-            el('th', { textContent: '', style: { width: '48px' } })
-        ]);
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // tbody
-        const tbody = el('tbody', { id: 'studentTbody' });
+        const body = el('div', { className: 'card-body card-body-students' });
+        const studentGrid = el('div', { className: 'student-card-grid', id: 'studentCardGrid' });
         appData.students.forEach((s, i) => {
-            tbody.appendChild(createStudentRow(s, i));
+            studentGrid.appendChild(createStudentCard(s, i));
         });
-        table.appendChild(tbody);
-        body.appendChild(table);
+        body.appendChild(studentGrid);
         card.appendChild(body);
 
         // Add student buttons
@@ -860,13 +844,27 @@
         setTimeout(() => textarea.focus(), 100);
     }
 
-    function createStudentRow(student, index) {
-        const targetCell = createTargetScoreCell(index, true);
-        const tr = el('tr', {}, [
-            el('td', {}, [el('span', { className: 'row-num', textContent: String(index + 1) })]),
-            el('td', {}, [
+    function createStudentCard(student, index) {
+        const card = el('div', { className: 'student-entry-card' });
+        const header = el('div', { className: 'student-entry-card-header' }, [
+            el('div', { className: 'student-entry-badge', textContent: `${index + 1}. Öğrenci` }),
+            el('button', {
+                className: 'btn-remove-student btn-remove-student-card',
+                textContent: '✕',
+                title: 'Öğrenciyi sil',
+                onClick: () => {
+                    if (confirm(`${student.name || 'Bu öğrenci'}yi silmek istediğinize emin misiniz?`)) {
+                        removeStudent(index);
+                    }
+                }
+            })
+        ]);
+
+        const infoGrid = el('div', { className: 'student-entry-fields' }, [
+            el('label', { className: 'student-entry-field' }, [
+                el('span', { className: 'student-entry-label', textContent: 'Öğrenci No' }),
                 el('input', {
-                    className: 'table-input',
+                    className: 'table-input student-entry-input',
                     type: 'text',
                     placeholder: 'Öğrenci no giriniz...',
                     value: student.no || '',
@@ -877,9 +875,10 @@
                     }
                 })
             ]),
-            el('td', {}, [
+            el('label', { className: 'student-entry-field student-entry-field-wide' }, [
+                el('span', { className: 'student-entry-label', textContent: 'Ad Soyad' }),
                 el('input', {
-                    className: 'table-input',
+                    className: 'table-input student-entry-input',
                     type: 'text',
                     placeholder: 'Ad Soyad giriniz...',
                     value: student.name || '',
@@ -889,40 +888,33 @@
                         saveData();
                     }
                 })
-            ]),
-            targetCell,
-            el('td', {}, [
-                el('button', {
-                    className: 'btn-remove-student',
-                    textContent: '✕',
-                    title: 'Öğrenciyi sil',
-                    onClick: () => {
-                        if (confirm(`${student.name || 'Bu öğrenci'}yi silmek istediğinize emin misiniz?`)) {
-                            removeStudent(index);
-                        }
-                    }
-                })
             ])
         ]);
-        return tr;
+
+        card.appendChild(header);
+        card.appendChild(infoGrid);
+        card.appendChild(createTargetScorePanel(index));
+        return card;
     }
 
-    function createTargetScoreCell(studentIndex, compact) {
-        const targetTd = el('td', {
-            className: compact ? 'td-target td-target-entry' : 'td-target',
-            style: compact ? { minWidth: '190px' } : { minWidth: '140px' }
-        });
+    function createTargetScorePanel(studentIndex) {
+        const targetTd = el('div', { className: 'student-target-panel td-target td-target-entry' });
+        targetTd.appendChild(el('div', {
+            className: 'student-entry-label',
+            textContent: 'Hedef Not Girişi'
+        }));
+
         const targetWrapper = el('div', {
-            className: compact ? 'target-input-wrapper target-input-wrapper-compact' : 'target-input-wrapper'
+            className: 'target-input-wrapper target-input-wrapper-compact'
         });
         const targetInput = el('input', {
-            className: compact ? 'target-input target-input-compact' : 'target-input',
+            className: 'target-input target-input-compact',
             type: 'number',
             min: '0',
             max: '100',
             step: '1',
             placeholder: '0-100',
-            id: compact ? `student-target-score-${studentIndex}` : `target-score-${studentIndex}`,
+            id: `student-target-score-${studentIndex}`,
             value: appData.students[studentIndex].targetScore || ''
         });
 
@@ -959,9 +951,9 @@
         });
 
         const distributeBtn = el('button', {
-            className: compact ? 'btn-distribute btn-distribute-compact' : 'btn-distribute',
+            className: 'btn-distribute btn-distribute-compact',
             title: 'Puanı yeniden dağıt',
-            textContent: compact ? 'Uygula' : '🎲',
+            textContent: 'Uygula',
             onClick: () => {
                 const val = parseFloat(targetInput.value);
                 if (isNaN(val) || val < 0 || val > 100) {
@@ -976,15 +968,10 @@
 
         targetWrapper.appendChild(targetInput);
         targetWrapper.appendChild(distributeBtn);
-
-        if (compact) {
-            const performanceScore = getFinalPerformance(studentIndex);
-            targetTd.appendChild(el('div', {
-                className: 'target-score-summary',
-                textContent: `Anlık puan: ${Math.round(performanceScore)}`
-            }));
-        }
-
+        targetTd.appendChild(el('div', {
+            className: 'target-score-summary',
+            textContent: `Anlık puan: ${Math.round(getFinalPerformance(studentIndex))}`
+        }));
         targetTd.appendChild(targetWrapper);
         return targetTd;
     }

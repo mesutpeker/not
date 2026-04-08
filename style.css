@@ -587,59 +587,80 @@ body {
 }
 
 /* ============================
-   TABLES
+   STUDENT CARDS
    ============================ */
-.data-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.82rem;
+.card-body-students {
+    padding: 20px;
 }
 
-.data-table thead th {
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-size: 0.72rem;
+.student-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.student-entry-card {
+    background:
+        linear-gradient(160deg, rgba(15, 118, 110, 0.06), rgba(255, 255, 255, 0.98));
+    border: 1px solid rgba(15, 118, 110, 0.16);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.student-entry-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.student-entry-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(15, 118, 110, 0.1);
+    color: var(--accent-purple-dark);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.student-entry-fields {
+    display: grid;
+    grid-template-columns: minmax(120px, 150px) minmax(0, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.student-entry-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.student-entry-field-wide {
+    min-width: 0;
+}
+
+.student-entry-label {
+    font-size: 0.76rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    padding: 12px 16px;
-    text-align: left;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    white-space: nowrap;
-    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
 }
 
-.data-table thead th:first-child {
-    padding-left: 24px;
+.student-entry-input {
+    min-width: 0;
+    min-height: 44px;
 }
 
-.data-table tbody tr {
-    transition: var(--transition-fast);
-}
-
-.data-table tbody tr:hover {
-    background: rgba(15, 118, 110, 0.04);
-}
-
-.data-table tbody td {
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-}
-
-.th-target-entry {
-    min-width: 190px;
-}
-
-.data-table tbody td:first-child {
-    padding-left: 24px;
-}
-
-.data-table tbody tr:last-child td {
-    border-bottom: none;
+.student-target-panel {
+    padding: 14px;
+    border-radius: 14px;
 }
 
 /* Row number */
@@ -1178,7 +1199,7 @@ body {
     opacity: 0;
 }
 
-.data-table tbody tr:hover .btn-remove-student {
+.student-entry-card:hover .btn-remove-student {
     opacity: 1;
 }
 
@@ -1186,6 +1207,10 @@ body {
     background: rgba(239, 68, 68, 0.1);
     border-color: var(--accent-red);
     color: var(--accent-red);
+}
+
+.btn-remove-student-card {
+    opacity: 1;
 }
 
 /* ============================
@@ -1405,8 +1430,21 @@ body {
         padding: 14px 16px;
     }
 
-    .data-table {
-        min-width: 760px;
+    .card-body-students {
+        padding: 16px;
+    }
+
+    .student-card-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .student-entry-card {
+        padding: 16px;
+    }
+
+    .student-entry-fields {
+        grid-template-columns: 1fr;
     }
 
     .performance-grid {
@@ -1522,10 +1560,6 @@ body {
 
     .quick-entry-badge {
         font-size: 0.68rem;
-    }
-
-    .data-table {
-        min-width: 700px;
     }
 
     .content-area {
