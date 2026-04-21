@@ -616,7 +616,7 @@
             el('input', {
                 className: 'quick-entry-input',
                 type: 'text',
-                placeholder: 'Örn. Mehdi İşleten',
+                placeholder: 'Örn. Ali Yılmaz',
                 id: 'quickAddName',
                 value: quickAddDraft.name,
                 onInput: (e) => {
@@ -773,7 +773,7 @@
         const textarea = el('textarea', {
             className: 'bulk-textarea',
             id: 'bulkTextarea',
-            placeholder: '322\tMEHDİ İŞLETEN\n346\tBİLAL KILINÇ\n...\n\nOkul sisteminden kopyaladığınız listeyi buraya yapıştırın.\nNumara ve ad soyad otomatik olarak ayrıştırılacaktır.',
+            placeholder: '123\tALİ YILMAZ\n345\tAYŞE GÖK\n...\n\nOkul sisteminden kopyaladığınız listeyi buraya yapıştırın.\nNumara ve ad soyad otomatik olarak ayrıştırılacaktır.',
             rows: '12'
         });
         modalBody.appendChild(textarea);
